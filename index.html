@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Практична робота. Арифметика у двійковій і шістнадцятковій системах</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#1d2433;--card:#fff;--mut:#5d667a;--ac:#3b5bdb;--acs:#e7ecff;--ok:#1e8e3e;--bad:#c62828;--bd:#d9deea;--hl:#fff3bf;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141824;--fg:#e8ebf3;--card:#1e2434;--mut:#9aa4bb;--ac:#8ea6ff;--acs:#27304d;--ok:#6fd48a;--bad:#ff8a80;--bd:#323a52;--hl:#4a4320}}
+:root[data-theme="dark"]{--bg:#141824;--fg:#e8ebf3;--card:#1e2434;--mut:#9aa4bb;--ac:#8ea6ff;--acs:#27304d;--ok:#6fd48a;--bad:#ff8a80;--bd:#323a52;--hl:#4a4320}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{display:flex;gap:16px;max-width:1090px;margin:auto;padding:0 14px;align-items:flex-start}
+main{max-width:none;margin:0;padding:16px 0 60px;flex:1;min-width:0}
+.ref{width:210px;flex:none;position:sticky;top:16px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;margin:16px 0;max-height:calc(100vh - 32px);overflow:auto;font-size:.85rem}
+.ref h3{font-size:.78rem;margin:0 0 6px;text-align:center;line-height:1.3}
+.ref table{width:100%;border-collapse:collapse}.ref th{background:var(--acs);color:var(--ac)}
+.ref td,.ref th{border:1px dotted var(--bd);padding:2px 4px;text-align:center;font-family:ui-monospace,Consolas,monospace}
+.rb{display:none;position:fixed;right:12px;bottom:14px;z-index:21;border-radius:24px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+@media(max-width:900px){.wrap{display:block}.ref{display:none;position:fixed;right:10px;bottom:64px;width:220px;max-height:70vh;z-index:20;margin:0;box-shadow:0 6px 24px rgba(0,0,0,.3)}.ref.open{display:block}.rb{display:block}}
+h1{font-size:1.4rem;margin:8px 0}h2{font-size:1.1rem;margin:0 0 6px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin:12px 0}
+.mut{color:var(--mut)}.ok{color:var(--ok);font-weight:600}.no{color:var(--bad);font-weight:600}
+button,input{font:inherit;color:var(--fg)}
+button{background:var(--ac);color:#fff;border:0;border-radius:9px;padding:8px 16px;cursor:pointer;margin:3px 3px 3px 0}
+:root[data-theme="dark"] button{color:#101428}
+button.s{background:var(--acs);color:var(--ac)}button:disabled{opacity:.5;cursor:default}
+input{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+input.n{width:10em;font-family:ui-monospace,Consolas,monospace}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+.big{font-size:1.4rem;font-weight:700}
+.q{font-size:1.25rem;font-weight:700;font-family:ui-monospace,Consolas,monospace}
+.tb td,.tb th{border:1px solid var(--bd);padding:3px 9px;text-align:center}.tb{border-collapse:collapse}
+.hint{background:var(--hl);border-radius:10px;padding:8px 12px;margin:6px 0;display:none}
+.timer{position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:3;display:flex;justify-content:space-between;align-items:center}
+.sc{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap"><main>
+<h1>Практична робота. Арифметика у двійковій і шістнадцятковій системах</h1>
+<div class="mut">Інформатика, 10 клас · Урок 7 · 6 завдань · максимум 12 балів</div>
+
+<div class="c">
+<h2>Пам’ятка (вона перед вами весь час)</h2>
+<p><b>Додавання:</b> сума цифр ≥ основи → пишемо <b>(сума − основа)</b> і <b>переносимо 1</b> ліворуч.<br>
+У двійковій: 0+0=0, 0+1=1, 1+1=<b>10</b> (пишемо 0, переносимо 1).<br>У шістнадцятковій: літери A–F замінюємо числами 10–15 і додаємо в десятковій. Якщо сума ≥ 16, пишемо <b>(сума − 16)</b> і переносимо 1. Результат понад 9 записуємо літерою. Приклад: A+B = 10+11 = 21 = 16+5 → пишемо <b>5</b>, переносимо 1.<br>
+<b>Віднімання:</b> цифра зверху менша → <b>позичаємо 1</b> зі старшого розряду, вона дає <b>основу</b> одиниць (у двійковій 2, у шістнадцятковій 16). У шістнадцятковій: E − F → 14 &lt; 15, позичаємо 1: 16 + 14 − 15 = 15 = <b>F</b>. Старший розряд після позички зменшується на 1.<br>
+<b>Множення:</b> двійкове — кожна цифра множника дає рядок (1 → множене, 0 → нулі), рядки зсуваємо вліво й додаємо. Шістнадцяткове — множимо цифри в десятковій і переводимо назад: C·3 = 12·3 = 36 = 2·16 + 4 → пишемо <b>4</b>, переносимо <b>2</b>; наступна цифра: добуток плюс це перенесення.<br>
+<b>Перевірка:</b> перевести числа у десяткову систему й порівняти.</p>
+<div class="sc"><table class="tb"><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr><tr><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr></table></div>
+</div>
+
+<div class="c" id="start">
+<h2>Перед початком</h2>
+<div class="row"><input id="nm" placeholder="Прізвище та ім’я" style="min-width:14em">
+<button class="s" id="v1" onclick="pick(0)">Варіант 1</button><button class="s" id="v2" onclick="pick(1)">Варіант 2</button></div>
+<p class="mut">Оберіть варіант, який назвав учитель. Після натискання «Почати» з’являться завдання. Відповіді пишіть без основи, великими літерами для A–F. До кожного завдання є підказка. Результат можна перевірити лише <b>один раз</b>.</p>
+<button id="go" onclick="begin()">▶ Почати</button>
+<div id="err" class="no"></div>
+</div>
+
+<div id="work" style="display:none">
+<div class="timer"><span class="mut" id="who"></span></div>
+<div id="tasks"></div>
+<button onclick="finish()" id="fin">Перевірити роботу</button>
+<div class="c" id="res" style="display:none"></div>
+</div>
+</main><aside class="ref" id="ref"></aside></div>
+<button class="rb" onclick="document.getElementById('ref').classList.toggle('open')">📋 Таблиця</button>
+<script>
+const $=i=>document.getElementById(i);
+// задача: текст, основа, правильна відповідь, бали, підказка, [десяткова перевірка]
+const V=[[
+['1101₂ + 1011₂',2,'11000','24','Справа наліво: 1+1=10 → пишемо 0, переносимо 1. Далі 0+1+1=10 → пишемо 0, переносимо 1. Далі 1+0+1=10 → пишемо 0, переносимо 1. Далі 1+1+1=11 → пишемо 1, переносимо 1. Ліворуч залишилась перенесена 1. Для перевірки переведіть обидва числа в десяткову систему й додайте.'],
+['1011₂ − 101₂',2,'110','6','Правий розряд: 1−1=0. Далі 1−0=1. Далі 0−1: не вистачає, позичаємо 1 зі старшого розряду (вона дає 2): 2+0−1=1. Старший розряд став на 1 менший.'],
+['111₂ · 11₂',2,'10101','21','Два рядки: 111 (множимо на 1) і 1110 (множимо на 1 і зсуваємо вліво). Додайте їх стовпчиком.'],
+['2A₁₆ + 1B₁₆',2,'45','69','Права цифра: A+B = 10+11 = 21 = 15₁₆, пишемо 5, переносимо 1. Ліва: 2+1+1 = 4.'],
+['5E₁₆ − 2F₁₆',2,'2F','47','Права цифра: E(14) < F(15), позичаємо 1 (вона дає 16): 16+14−15=15=F. Ліва: 5−1=4, 4−2=2.'],
+['1C₁₆ · 3₁₆',2,'54','84','C·3 = 12·3 = 36 = 2·16+4 → пишемо 4, переносимо 2. Далі 1·3 + 2 = 5.']
+],[
+['1110₂ + 1011₂',2,'11001','25','Справа наліво: 0+1=1. Далі 1+1=10 → пишемо 0, переносимо 1. Далі 1+0+1=10 → пишемо 0, переносимо 1. Далі 1+1+1=11 → пишемо 1, переносимо 1. Ліворуч — перенесена 1. Для перевірки переведіть обидва числа в десяткову систему й додайте.'],
+['1100₂ − 101₂',2,'111','7','Права цифра: 0−1 не вистачає, позичаємо 1 зі старшого розряду (вона дає 2): 2+0−1=1. Продовжуйте, пам’ятаючи, що старший розряд зменшився на 1.'],
+['101₂ · 11₂',2,'1111','15','Два рядки: 101 (множимо на 1) і 1010 (множимо на 1 і зсуваємо вліво). Додайте їх стовпчиком.'],
+['3C₁₆ + 1D₁₆',2,'59','89','Права цифра: C+D = 12+13 = 25 = 19₁₆, пишемо 9, переносимо 1. Ліва: 3+1+1 = 5.'],
+['6A₁₆ − 2B₁₆',2,'3F','63','Права цифра: A(10) < B(11), позичаємо 1 (вона дає 16): 16+10−11=15=F. Ліва: 6−1=5, 5−2=3.'],
+['1B₁₆ · 3₁₆',2,'51','81','B·3 = 11·3 = 33 = 2·16+1 → пишемо 1, переносимо 2. Далі 1·3 + 2 = 5.']
+]];
+let h='<h3>Порівняльна таблиця запису десяткових чисел у різних системах числення</h3><table><tr><th>10</th><th>16</th><th>8</th><th>2</th></tr>';for(let i=0;i<16;i++)h+=`<tr><td>${i}</td><td>${i.toString(16).toUpperCase()}</td><td>${i.toString(8)}</td><td>${i.toString(2)}</td></tr>`;$('ref').innerHTML=h+'</table>';
+let vi=-1,ti=null,done=false;
+function pick(i){vi=i;$('v1').className=i?'s':'';$('v2').className=i?'':'s'}
+function begin(){const n=$('nm').value.trim();if(!n){$('err').textContent='Введіть прізвище та ім’я.';return}if(vi<0){$('err').textContent='Оберіть варіант.';return}
+$('err').textContent='';$('start').style.display='none';$('work').style.display='block';$('who').textContent=n+' · варіант '+(vi+1);
+$('tasks').innerHTML=V[vi].map((t,i)=>{const b=t[3]===null?[1]:[1,1];const sub=t[1]==1;
+return `<div class="c"><div class="row"><span class="q">${i+1}. ${t[0]} =</span><input class="n" id="a${i}" autocomplete="off" placeholder="відповідь"><span class="mut">(${t[1]} б)</span><span id="f${i}"></span></div>
+${t[3]!==null?`<div class="row"><span>Перевірка: результат у десятковій системі =</span><input class="n" id="d${i}" autocomplete="off" placeholder="число"><span class="mut">(+1 б у цьому завданні)</span><span id="g${i}"></span></div>`:''}
+<button class="s" onclick="$('h${i}').style.display=$('h${i}').style.display=='block'?'none':'block'">Підказка</button><div class="hint" id="h${i}">${t[4]}</div></div>`}).join('');
+}
+const norm=s=>s.trim().toUpperCase().replace(/\s/g,'').replace(/^0+(?=.)/,'');
+function finish(){if(done)return;done=true;clearInterval(ti);let s=0;const rows=[];
+V[vi].forEach((t,i)=>{const ok=norm($('a'+i).value)==t[2];let p=0;if(ok)p+=1;$('f'+i).innerHTML=ok?'<span class="ok">✓</span>':`<span class="no">✗ правильно: ${t[2]}</span>`;
+if(t[3]!==null){const ok2=norm($('d'+i).value)==t[3];if(ok2)p+=1;$('g'+i).innerHTML=ok2?'<span class="ok">✓</span>':`<span class="no">✗ правильно: ${t[3]}</span>`}
+if(t[3]===null&&ok)p=1;s+=p;rows.push(p)});
+document.querySelectorAll('input').forEach(e=>e.disabled=true);$('fin').disabled=true;
+const txt=`${$('nm').value.trim()}, варіант ${vi+1}: ${s} з 12 балів`;
+$('res').style.display='block';$('res').innerHTML=`<div class="big">Результат: ${s} з 12 балів</div><p class="mut">Бали за завдання: ${rows.join(' · ')}</p><button onclick="navigator.clipboard&&navigator.clipboard.writeText('${txt.replace(/'/g,'’')}').then(()=>this.textContent='Скопійовано ✓')">Скопіювати результат для чату Teams</button>`;
+$('res').scrollIntoView({behavior:'smooth'})}
+</script>
+</body>
+</html>
